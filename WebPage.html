@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+
+<!--Start of head tag-->
+<head>
+ <meta charset="ISO-8859-1">
+ <meta name="viewport" content="width=device-width, initial-scale=1">
+
+ <!--Styling logic for screen splitting-->
+ <style>
+        .split { height: 100%;
+                 width: 50%;
+                 position: fixed;
+                 z-index: 1;
+                 top: 0;
+                 overflow-x: hidden;
+                 padding-top: 20px;  }
+        .left { left: 0; }
+        .right { right: 0;}
+ </style>
+
+ <title>Cincinnati Weather Forecast</title>
+
+ <!--Logic for forecast chart-->
+ <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.min.js"></script>
+<!--End ofhead tag-->
+</head>
+
+<!--Start of body tag-->
+<body>
+
+ <!--Logic for left split-->
+ <div class="left split">
+        <h1>Paramaiah Chandu's Weather Forecast API with dynamic UI</h1>
+        <p>Select any date to get your forecast</p>
+        <div>
+        <input type="date" id="myDate" >
+        <!--Caling ajaxFunction-->
+        <button onclick="ajaxFunction()">Forecast Weather</button>
+        </div>
+        <canvas id="myChart" width="10" height="10"></canvas>
+        <p id="demo"></p>
+ </div>
+
+ <!--Logic for right split-->
+ <div class="right split">
+        <!--Calling ajaxFunctionThirdParty-->
+        <div><button onclick="ajaxFunctionThirdParty()">Third Party Forecast</button></div>
+        <canvas id="myChartTP" width="10" height="10"></canvas>
+ </div>
+
+<script>
+ <!--Logic for ajaxFunction-->
+ function ajaxFunction()
+ {
+  var xhttp = new XMLHttpRequest();
+  xhttp.onreadystatechange = function()
+  {
+   if (xhttp.readyState == 4)
+   {
+    var jsonObj = JSON.parse(xhttp.responseText);
+    var date = [];
+    var tMax =[];
+    var tMin=[];
+    for (x in jsonObj)
+    {
+     date.push(jsonObj[x].DATE);
+     tMax.push(jsonObj[x].TMAX);
+     tMin.push(jsonObj[x].TMIN);
+    }
+    var ctx = document.getElementById("myChart");
+    var myChart = new Chart( ctx, { type: 'line', data: { labels: date,
+                        datasets: [ { data: tMax, label: "TMAX", borderColor: "#ff0000", fill: false },
+                                    { data: tMin, label: "TMIN", borderColor: "#00ff00", fill: false } ] } });
+    }
+  }
+  var apiLink="http://localhost:8081/forecast/"+document.getElementById("myDate").value.replace("-", "").replace("-", "");
+  document.getElementById("demo").innerHTML = apiLink;
+  xhttp.open("GET", apiLink);
+  xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+  xhttp.send();
+ }
+ <!--Logic for ajaxFunctionThirdParty-->
+ function ajaxFunctionThirdParty()
+ {
+  var canvas = document.getElementById("myChartTP");
+  canvas.style.width = 40;
+  canvas.style.height = 20;
+  canvas.width = 100;
+  canvas.height = 80;
+  var xmlhttp = new XMLHttpRequest();
+  xmlhttp.onreadystatechange = function()
+  {
+   if (this.readyState == 4)
+   {
+    var jsonObj = JSON.parse(xmlhttp.responseText);
+    var dateTP = [];
+    var TmaxTP = [];
+    var TminTP = [];
+    for (i = 0; i < 5; i++)
+    {
+     dateTP.push(jsonObj.forecast.simpleforecast.forecastday[i].date.year + "0" + jsonObj.forecast.simpleforecast.forecastday[i].date.month + "" + jsonObj.forecast.simpleforecast.forecastday[i].date.day);
+     TmaxTP.push(jsonObj.forecast.simpleforecast.forecastday[i].high.fahrenheit);
+     TminTP.push(jsonObj.forecast.simpleforecast.forecastday[i].low.fahrenheit);
+    }
+    var ctx1 = document.getElementById("myChartTP");
+    var myChartTP = new Chart( ctx1, { type : 'line', data : { labels : dateTP,
+                          datasets : [ { data : TmaxTP, label : "TMAX", borderColor : "#ff0000", fill : false },
+                                       { data : TminTP, label : "TMIN", borderColor : "#00ff00", fill : false } ] } } );
+   }
+  };
+  xmlhttp.open("GET","http://api.wunderground.com/api/49ff0d29b38ecf75/forecast10day/q/OH/Cincinnati.json",true);
+  xmlhttp.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+  xmlhttp.send();
+ }
+</script>
+
+<!--End of body tag-->
+</body>
+</html>

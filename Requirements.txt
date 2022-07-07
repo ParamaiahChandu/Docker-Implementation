@@ -9,7 +9,7 @@ itsdangerous==0.24
 Jinja2==2.7.2
 MarkupSafe==0.11
 pytz==2018.3
-requests==1.2.3
+requests==2.20.0
 six==1.8.0
 SQLAlchemy==1.2.4
 urllib3==1.8.2
